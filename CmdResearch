@@ -1,0 +1,77 @@
+#! /bin/csh
+# CmdResearch
+# C言語プログラムの作成・コンパイル・実行を行う
+# goto文と割り込み処理を使用した改良版
+
+onintr interrupt
+
+echo -n "ファイル名を入力してください（拡張子なし）："
+set name = $<
+
+if ( "$name" == "" ) then
+    echo "ファイル名が入力されていません。"
+    exit(1)
+endif
+
+menu:
+echo ""
+echo "----- メニュー -----"
+echo "1 : C言語プログラムを作成"
+echo "2 : コンパイル"
+echo "3 : 実行"
+echo "q : 終了"
+echo -n "番号を入力してください："
+set select = $<
+
+if ( "$select" == "1" ) then
+    echo "$name.c を作成します。"
+    vi "$name.c"
+    echo "C言語プログラムの作成が終了しました。"
+    goto menu
+endif
+
+if ( "$select" == "2" ) then
+    if ( ! -e "$name.c" ) then
+        echo "$name.c が存在しません。"
+        goto menu
+    endif
+
+    echo "$name.c をコンパイルします。"
+    gcc "$name.c" -o "$name.out"
+
+    if ( $status == 0 ) then
+        echo "コンパイルに成功しました。"
+    else
+        echo "コンパイルに失敗しました。"
+    endif
+
+    goto menu
+endif
+
+if ( "$select" == "3" ) then
+    if ( ! -e "$name.out" ) then
+        echo "$name.out が存在しません。"
+        echo "先にコンパイルを行ってください。"
+        goto menu
+    endif
+
+    echo "プログラムを実行します。"
+    "$name.out"
+    echo ""
+    echo "実行が終了しました。"
+    goto menu
+endif
+
+if ( "$select" == "q" ) then
+    echo "プログラムを終了します。"
+    exit(0)
+endif
+
+echo "正しい番号を入力してください。"
+goto menu
+
+interrupt:
+echo ""
+echo "Ctrl-C が入力されたため、現在の処理を中断しました。"
+echo "メニューに戻ります。"
+goto menu
